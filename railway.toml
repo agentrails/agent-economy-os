@@ -1,6 +1,3 @@
-[build]
-builder = "DOCKER"
-
 [deploy]
 startCommand = "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
 healthcheckPath = "/health"
