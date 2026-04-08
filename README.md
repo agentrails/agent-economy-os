@@ -256,15 +256,15 @@ Railway offers a seamless, one-click deployment experience that reads the includ
 5. **Deploy**: Railway will automatically detect the `railway.toml` file, build the Docker image, and deploy it.
 
 **Expected Live URL Pattern:**
-`https://<your-project-name>.up.railway.app`
+`https://agent-economy-os-production.up.railway.app`
 
 ### Production Monitoring & Verification
 
 Once deployed, you can verify the service is running and monitor its health using the public endpoints. These are the recommended endpoints to use for PaaS health checks:
 
-- **Health Check**: `https://<your-project-name>.up.railway.app/health`
+- **Health Check**: `https://agent-economy-os-production.up.railway.app/health`
   - *Returns basic status, version, and timestamp.*
-- **Metrics**: `https://<your-project-name>.up.railway.app/metrics`
+- **Metrics**: `https://agent-economy-os-production.up.railway.app/metrics`
   - *Returns uptime and total agents metered.*
 
 *Note: Since the current rate limiting and caching are in-memory, ensure your PaaS is configured to run a single instance/replica (which is the default on free tiers) until Redis is fully integrated.*
