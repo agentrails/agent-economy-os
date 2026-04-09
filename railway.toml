@@ -4,3 +4,6 @@ healthcheckPath = "/health"
 healthcheckTimeout = 100
 restartPolicyType = "ON_FAILURE"
 numReplicas = 1
+
+# Note: For production, ensure the following environment variables are set:
+# API_KEY, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, REDIS_URL

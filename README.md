@@ -19,7 +19,7 @@ After pushing to GitHub:
 ![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
-![Version](https://img.shields.io/badge/version-v0.1.0-orange)
+![Version](https://img.shields.io/badge/version-v0.1.1-orange)
 
 The **Universal Agent Economy OS** is a foundational, MCP/A2A-native core platform designed to power the exploding agentic sub-economy. It begins as a secure credential injection and x402 micropayment proxy, compounding daily into a full multi-monopoly empire (identity engine, payments, settlement, compliance packs, vertical marketplaces).
 

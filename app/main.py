@@ -123,7 +123,8 @@ async def root():
     return {
         "status": "ok",
         "message": "Universal Agent Economy OS Proxy v0 is running",
-        "endpoints": ["/proxy/execute", "/health", "/metrics"]
+        "endpoints": ["/proxy/execute", "/health", "/metrics", "/stats"],
+        "note": "Revenue engine ready"
     }
 
 @app.get("/health")

@@ -5,6 +5,13 @@ All notable changes to the Universal Agent Economy OS will be documented in this
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] - 2026-04-09
+
+### Added
+- **Stripe Webhook Integration**: Secure handling of real Stripe events (`payment_intent.succeeded`, `payment_intent.payment_failed`) via `/webhooks/stripe` using HMAC signature verification.
+- **SDK Enhancements**: Python SDK updated to fully expose the revenue stack (`execute_payment`, `get_stats`, `get_invoice`).
+- **Redis-Ready Infrastructure**: Upgraded rate limiting, caching, and usage metering to be fully Redis-compatible for horizontal scaling, with seamless in-memory fallbacks.
+
 ## [0.1.0] - 2026-04-06
 
 ### Added
