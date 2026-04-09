@@ -33,7 +33,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-VERSION = "0.1.0"
+VERSION = "0.1.1"
 START_TIME = time.time()
 
 app = FastAPI(
