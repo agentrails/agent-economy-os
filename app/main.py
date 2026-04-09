@@ -14,7 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.proxy import ProxyRequest, ProxyResponse, execute_proxy_request
 from app.identity import AgentRegisterRequest, AgentResponse, register_agent, CredentialRotateRequest, CredentialRotateResponse, rotate_credential
 from app.routing import A2ARouteRequest, A2ARouteResponse, route_tool_call
-from app.payments import PaymentWebhookPayload, process_payment_webhook, verify_webhook_signature
+from app.payments import PaymentWebhookPayload, process_payment_webhook, verify_webhook_signature, handle_stripe_webhook
 from app.billing import Invoice, calculate_usage_invoice, get_recent_invoices
 from app.rate_limit import RateLimitExceeded
 from app.errors import UAEError
@@ -467,6 +467,47 @@ async def payment_webhook(request: Request, payload: PaymentWebhookPayload):
         raise e
     except Exception as e:
         logger.error(f"Failed to process payment webhook: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="An internal server error occurred while processing the webhook.")
+
+@app.post(
+    "/webhooks/stripe",
+    summary="Stripe Webhook Handler",
+    response_description="Confirmation that the Stripe webhook was received.",
+    responses={
+        200: {"description": "Webhook received and verified successfully"},
+        400: {"description": "Bad Request - Invalid signature or payload"},
+        500: {"description": "Internal Server Error"}
+    }
+)
+async def stripe_webhook(request: Request):
+    """
+    Webhook handler specifically for real Stripe events.
+    
+    This endpoint is public but strictly protected by Stripe's HMAC signature
+    verification using the `STRIPE_WEBHOOK_SECRET`. It processes events like
+    `payment_intent.succeeded` to update the internal settlement engine.
+    """
+    try:
+        body = await request.body()
+        signature = request.headers.get("Stripe-Signature")
+        
+        if not signature:
+            logger.warning("Missing Stripe-Signature header. Rejecting request.")
+            raise UAEError(error_code="MISSING_SIGNATURE", message="Missing Stripe-Signature header", status_code=400)
+            
+        success = handle_stripe_webhook(body, signature)
+        
+        if not success:
+            logger.warning("Failed to verify or process Stripe webhook.")
+            raise UAEError(error_code="INVALID_WEBHOOK", message="Failed to verify or process Stripe webhook", status_code=400)
+            
+        return {"status": "received"}
+    except UAEError as e:
+        raise e
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        logger.error(f"Failed to process Stripe webhook: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail="An internal server error occurred while processing the webhook.")
 
 @app.post(

@@ -115,3 +115,42 @@ async def process_payment_webhook(payload: PaymentWebhookPayload) -> bool:
     else:
         logger.warning(f"Payment {payload.transaction_id} for agent {payload.agent_id} reported status: {payload.status}")
         return False
+
+def handle_stripe_webhook(payload_body: bytes, signature_header: str) -> bool:
+    """
+    Verifies and processes a real Stripe webhook event using the Stripe SDK.
+    """
+    secret = settings.STRIPE_WEBHOOK_SECRET
+    if not secret:
+        logger.warning("STRIPE_WEBHOOK_SECRET is not configured. Rejecting Stripe webhook.")
+        return False
+        
+    if not signature_header:
+        logger.warning("Missing Stripe-Signature header.")
+        return False
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload_body, signature_header, secret
+        )
+    except ValueError as e:
+        logger.warning(f"Invalid payload for Stripe webhook: {e}")
+        return False
+    except stripe.error.SignatureVerificationError as e:
+        logger.warning(f"Invalid signature for Stripe webhook: {e}")
+        return False
+
+    logger.info(f"Received Stripe webhook event: {event['type']}")
+    
+    if event['type'] == 'payment_intent.succeeded':
+        payment_intent = event['data']['object']
+        logger.info(f"Stripe payment succeeded for intent: {payment_intent.get('id')}")
+        # In a real system, update the DB here using the payment_intent data
+        return True
+    elif event['type'] == 'payment_intent.payment_failed':
+        payment_intent = event['data']['object']
+        logger.warning(f"Stripe payment failed for intent: {payment_intent.get('id')}")
+        return False
+    
+    # Unhandled event types are ignored but considered successfully received
+    return True

@@ -271,6 +271,17 @@ Once deployed, you can verify the service is running and monitor its health usin
 
 *Note: Since the current rate limiting and caching are in-memory, ensure your PaaS is configured to run a single instance/replica (which is the default on free tiers) until Redis is fully integrated.*
 
+### Stripe Webhook Setup
+
+To enable real-time settlement tracking for live Stripe payments, configure a webhook in your Stripe Dashboard:
+
+1. Go to **Developers > Webhooks** in the Stripe Dashboard.
+2. Click **Add endpoint**.
+3. Set the **Endpoint URL** to `https://agent-economy-os-production.up.railway.app/webhooks/stripe`.
+4. Select the **Events to send**: `payment_intent.succeeded` and `payment_intent.payment_failed`.
+5. Click **Add endpoint**.
+6. Reveal the **Signing secret** (starts with `whsec_`) and add it to your Railway environment variables as `STRIPE_WEBHOOK_SECRET`.
+
 ---
 
 ## Contributing

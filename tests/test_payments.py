@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import patch, MagicMock
-from app.payments import execute_payment
+from app.payments import execute_payment, handle_stripe_webhook
 from app.config import settings
 import stripe
 
@@ -73,3 +73,68 @@ def test_execute_payment_live_error(mock_create):
     
     settings.STRIPE_MODE = "simulation"
     settings.STRIPE_SECRET_KEY = ""
+
+def test_handle_stripe_webhook_no_secret():
+    """
+    Test handle_stripe_webhook when STRIPE_WEBHOOK_SECRET is not configured.
+    """
+    settings.STRIPE_WEBHOOK_SECRET = ""
+    assert handle_stripe_webhook(b"{}", "dummy_sig") is False
+
+def test_handle_stripe_webhook_no_signature():
+    """
+    Test handle_stripe_webhook when signature header is missing.
+    """
+    settings.STRIPE_WEBHOOK_SECRET = "whsec_test"
+    assert handle_stripe_webhook(b"{}", "") is False
+    settings.STRIPE_WEBHOOK_SECRET = ""
+
+@patch("stripe.Webhook.construct_event")
+def test_handle_stripe_webhook_success(mock_construct):
+    """
+    Test handle_stripe_webhook with a valid signature and payload.
+    """
+    settings.STRIPE_WEBHOOK_SECRET = "whsec_test"
+    
+    # Mock a successful payment_intent.succeeded event
+    mock_event = {
+        "type": "payment_intent.succeeded",
+        "data": {
+            "object": {"id": "pi_123"}
+        }
+    }
+    mock_construct.return_value = mock_event
+    
+    assert handle_stripe_webhook(b"{}", "valid_sig") is True
+    
+    # Mock a payment_intent.payment_failed event
+    mock_event["type"] = "payment_intent.payment_failed"
+    assert handle_stripe_webhook(b"{}", "valid_sig") is False
+    
+    # Mock an unhandled event
+    mock_event["type"] = "charge.succeeded"
+    assert handle_stripe_webhook(b"{}", "valid_sig") is True
+    
+    settings.STRIPE_WEBHOOK_SECRET = ""
+
+@patch("stripe.Webhook.construct_event")
+def test_handle_stripe_webhook_invalid_payload(mock_construct):
+    """
+    Test handle_stripe_webhook with an invalid payload (ValueError).
+    """
+    settings.STRIPE_WEBHOOK_SECRET = "whsec_test"
+    mock_construct.side_effect = ValueError("Invalid payload")
+    
+    assert handle_stripe_webhook(b"invalid", "valid_sig") is False
+    settings.STRIPE_WEBHOOK_SECRET = ""
+
+@patch("stripe.Webhook.construct_event")
+def test_handle_stripe_webhook_invalid_signature(mock_construct):
+    """
+    Test handle_stripe_webhook with an invalid signature.
+    """
+    settings.STRIPE_WEBHOOK_SECRET = "whsec_test"
+    mock_construct.side_effect = stripe.error.SignatureVerificationError("Invalid sig", "sig", b"body")
+    
+    assert handle_stripe_webhook(b"{}", "invalid_sig") is False
+    settings.STRIPE_WEBHOOK_SECRET = ""
