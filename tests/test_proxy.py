@@ -108,6 +108,42 @@ def test_proxy_execute_invalid_payment(mock_request):
     assert data["x402_settled"] is False
     assert data.get("transaction_id") is None
 
+def test_proxy_execute_payment_required():
+    """
+    Test the /proxy/execute endpoint when the tool call requires a payment
+    but none is provided. Expects a 402 Payment Required error.
+    """
+    payload = {
+        "agent_id": "agent_123",
+        "tool_call": {"url": "http://example.com/api", "action": "read_data", "required_payment": 5.0},
+        "credential_type": "read_only_token",
+        "payment_amount": 2.0
+    }
+    response = client.post("/proxy/execute", json=payload, headers=get_auth_headers())
+    assert response.status_code == 402
+    data = response.json()
+    assert data["error_code"] == "PAYMENT_REQUIRED"
+    assert "payment_instructions" in data["details"]
+
+@patch("app.middleware.x402.execute_payment")
+def test_proxy_execute_payment_failed(mock_execute):
+    """
+    Test the /proxy/execute endpoint when the payment settlement fails.
+    Expects a 402 Payment Failed error.
+    """
+    mock_execute.return_value = (False, None, 5.0)
+    
+    payload = {
+        "agent_id": "agent_123",
+        "tool_call": {"url": "http://example.com/api", "action": "read_data", "required_payment": 5.0},
+        "credential_type": "read_only_token",
+        "payment_amount": 5.0
+    }
+    response = client.post("/proxy/execute", json=payload, headers=get_auth_headers())
+    assert response.status_code == 402
+    data = response.json()
+    assert data["error_code"] == "PAYMENT_FAILED"
+
 @patch("httpx.AsyncClient.request", new_callable=AsyncMock)
 def test_proxy_execute_missing_credentials(mock_request):
     """

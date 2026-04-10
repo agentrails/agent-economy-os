@@ -532,6 +532,7 @@ async def stripe_webhook(request: Request):
             }
         },
         401: {"description": "Unauthorized - Missing or invalid API key"},
+        402: {"description": "Payment Required - Missing or insufficient payment amount"},
         403: {"description": "Forbidden - Insufficient scopes or missing credential"},
         429: {"description": "Too Many Requests - Rate limit exceeded"},
         500: {"description": "Internal Server Error"}

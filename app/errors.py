@@ -35,6 +35,20 @@ class PaymentFailedError(UAEError):
             status_code=402
         )
 
+class PaymentRequiredError(UAEError):
+    """Raised when an operation requires a payment that was not provided or insufficient."""
+    def __init__(self, required_amount: float, message: str = "Payment required for this operation."):
+        super().__init__(
+            message=message,
+            error_code="PAYMENT_REQUIRED",
+            status_code=402,
+            details={
+                "required_amount": required_amount,
+                "currency": "USD",
+                "payment_instructions": f"Please provide a payment_amount of at least {required_amount} to proceed."
+            }
+        )
+
 class InvalidA2ARouteError(UAEError):
     """Raised when an A2A routing target is invalid or unreachable."""
     def __init__(self, target_agent_id: str, message: str = "Invalid A2A routing target."):

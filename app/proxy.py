@@ -9,6 +9,7 @@ import uuid
 import logging
 from app.routing import route_tool_call
 from app.payments import execute_payment
+from app.middleware.x402 import process_x402_payment
 from typing import Any, Dict, Optional, Tuple
 from fastapi import HTTPException
 from pydantic import BaseModel, Field
@@ -140,10 +141,12 @@ async def execute_proxy_request(request: ProxyRequest) -> ProxyResponse:
         logger.warning(f"Failed to find credentials for {request.agent_id} ({request.credential_type}).")
 
     # 2. Settlement Engine (x402 micropayment proxy)
-    settled = False
-    transaction_id = None
-    if request.payment_amount is not None:
-        settled, transaction_id, _ = execute_payment(request.payment_amount, request.agent_id)
+    # Native x402 middleware intercepts the request and checks for required payments
+    settled, transaction_id = process_x402_payment(
+        agent_id=request.agent_id,
+        tool_call=request.tool_call,
+        payment_amount=request.payment_amount
+    )
 
     # 3. Tool Execution Engine
     # Route the injected tool_call to the target A2A endpoint
