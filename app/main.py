@@ -9,7 +9,8 @@ import time
 import logging
 from datetime import datetime, timezone
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
+import os
 from fastapi.middleware.cors import CORSMiddleware
 from app.proxy import ProxyRequest, ProxyResponse, execute_proxy_request
 from app.identity import AgentRegisterRequest, AgentResponse, register_agent, CredentialRotateRequest, CredentialRotateResponse, rotate_credential
@@ -126,6 +127,26 @@ async def root():
         "endpoints": ["/proxy/execute", "/health", "/metrics", "/stats"],
         "note": "Revenue engine ready"
     }
+
+@app.get("/.well-known/agent-card.json", include_in_schema=False)
+async def get_agent_card():
+    """
+    Serves the agent discovery metadata for the Universal Agent Economy OS.
+    """
+    file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".well-known", "agent-card.json")
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="Agent card not found")
+    return FileResponse(file_path, media_type="application/json")
+
+@app.get("/.well-known/mcp.json", include_in_schema=False)
+async def get_mcp_manifest():
+    """
+    Serves the MCP server manifest for the Universal Agent Economy OS.
+    """
+    file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".well-known", "mcp.json")
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="MCP manifest not found")
+    return FileResponse(file_path, media_type="application/json")
 
 @app.get("/health")
 async def health_check():

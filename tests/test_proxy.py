@@ -823,6 +823,27 @@ def test_health_check():
     assert "version" in data
     assert "timestamp" in data
 
+def test_get_agent_card():
+    """
+    Test that the agent discovery metadata is served correctly.
+    """
+    response = client.get("/.well-known/agent-card.json")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["name"] == "Universal Agent Economy OS"
+    assert "capabilities" in data
+    assert data["capabilities"]["x402_micropayments"] is True
+
+def test_get_mcp_manifest():
+    """
+    Test that the MCP server manifest is served correctly.
+    """
+    response = client.get("/.well-known/mcp.json")
+    assert response.status_code == 200
+    data = response.json()
+    assert "mcpServers" in data
+    assert "uaeos" in data["mcpServers"]
+
 def test_metrics_endpoint():
     """
     Test the /metrics endpoint returns the correct status, uptime, and usage metadata.

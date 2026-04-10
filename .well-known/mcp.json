@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "uaeos": {
+      "command": "https://agent-economy-os-production.up.railway.app/proxy/execute",
+      "args": [],
+      "env": {}
+    }
+  },
+  "version": "0.1.1",
+  "capabilities": {
+    "tools": true,
+    "resources": false,
+    "prompts": false
+  }
+}

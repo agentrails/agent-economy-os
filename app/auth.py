@@ -14,7 +14,7 @@ from app.config import settings
 logger = logging.getLogger(__name__)
 
 # List of paths that do not require authentication
-PUBLIC_PATHS = ["/", "/health", "/metrics", "/docs", "/openapi.json", "/redoc", "/webhooks/payment", "/webhooks/stripe"]
+PUBLIC_PATHS = ["/", "/health", "/metrics", "/docs", "/openapi.json", "/redoc", "/webhooks/payment", "/webhooks/stripe", "/.well-known/agent-card.json", "/.well-known/mcp.json"]
 
 async def api_key_middleware(request: Request, call_next):
     """
