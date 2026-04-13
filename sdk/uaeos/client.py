@@ -266,3 +266,9 @@ class UAEOSClient:
         Retrieves global usage statistics and recent invoices from the dashboard.
         """
         return await self._request("GET", "/stats")
+
+    async def get_vertical_packs(self) -> Dict[str, Any]:
+        """
+        Retrieves all registered vertical credential packs and their definitions.
+        """
+        return await self._request("GET", "/verticals")

@@ -34,7 +34,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-VERSION = "0.1.2"
+VERSION = "0.1.3"
 START_TIME = time.time()
 
 app = FastAPI(
@@ -248,6 +248,26 @@ async def dashboard_stats():
     responses={
         200: {
             "description": "Successful retrieval of vertical packs",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "verticals": [
+                            {
+                                "pack_id": "finance",
+                                "name": "Finance",
+                                "description": "Core financial credentials for payments, banking, and ledger access.",
+                                "credentials": {
+                                    "stripe_live": {
+                                        "name": "Stripe Live Key",
+                                        "description": "Live Stripe API key for processing real payments.",
+                                        "allowed_scopes": ["payment:read", "payment:write", "refund:write"]
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
         },
         401: {"description": "Unauthorized - Missing or invalid API key"},
         500: {"description": "Internal Server Error"}
@@ -256,8 +276,10 @@ async def dashboard_stats():
 async def get_vertical_packs():
     """
     Retrieves all registered vertical credential packs.
+    
     Vertical packs define standardized credential types (e.g., Finance, Social)
-    and their allowed scopes.
+    and their allowed scopes. The Identity Engine uses these packs to automatically
+    validate requested scopes and inject default scopes during credential rotation.
     """
     from app.verticals import get_all_packs
     try:
@@ -588,36 +610,46 @@ async def stripe_webhook(request: Request):
 async def proxy_execute(request: ProxyRequest):
     """
     Execute a tool call through the secure proxy.
-    Handles credential injection and optional x402 micropayment settlement.
+    Handles credential injection, scope validation, and x402 micropayment settlement.
+    
+    **x402 Micropayments & Vertical Credentials:**
+    - If the `tool_call` specifies a `required_payment`, the proxy's native x402 middleware
+      will intercept the request. If `payment_amount` is insufficient, it returns a `402 Payment Required` error.
+    - Agents can retry failed x402 calls by providing a valid `payment_proof` (transaction ID)
+      from a previous successful settlement to avoid double-charging.
+    - The Identity Engine automatically validates requested scopes against loaded Vertical Credential Packs
+      (e.g., the Finance pack for `stripe_live`, `plaid_link`, `bank_api`).
     
     This is the unbreakable foundation that every future module (identity engine, 
     settlement, A2A routing, compliance) will extend. It is fully **Model Context Protocol (MCP)** 
     and **Agent-to-Agent (A2A)** compatible.
     
-    **Example Request (Downstream HTTP):**
+    **Example Request (Downstream HTTP with x402):**
     ```json
     {
       "agent_id": "agent_123",
       "tool_call": {
         "url": "https://api.example.com/data",
         "method": "POST",
-        "payload": {"query": "test"}
+        "payload": {"query": "test"},
+        "required_payment": 0.50
       },
       "credential_type": "stripe_live",
-      "payment_amount": 0.05
+      "payment_amount": 0.50
     }
     ```
     
-    **Example Request (A2A Routing):**
+    **Example Request (x402 Retry with Proof):**
     ```json
     {
       "agent_id": "agent_123",
       "tool_call": {
         "target_agent_id": "agent_456",
-        "action": "fetch_premium_data"
+        "action": "fetch_premium_data",
+        "required_payment": 1.50
       },
-      "credential_type": "custom_oauth",
-      "payment_amount": 1.50
+      "credential_type": "bank_api",
+      "payment_proof": "tx_stripe_98765"
     }
     ```
     """

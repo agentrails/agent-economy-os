@@ -19,7 +19,7 @@ After pushing to GitHub:
 ![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
-![Version](https://img.shields.io/badge/version-v0.1.2-orange)
+![Version](https://img.shields.io/badge/version-v0.1.3-orange)
 
 The **Universal Agent Economy OS** is a foundational, MCP/A2A-native core platform designed to power the exploding agentic sub-economy. It begins as a secure credential injection and x402 micropayment proxy, compounding daily into a full multi-monopoly empire (identity engine, payments, settlement, compliance packs, vertical marketplaces).
 
@@ -115,6 +115,51 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
+## x402 Micropayments & Settlement
+
+The Universal Agent Economy OS features a native x402 middleware that intercepts tool calls requiring payment. This allows agents to autonomously negotiate and settle micropayments before executing downstream requests.
+
+### How it Works
+1. **Required Payment**: If an agent requests a tool call that specifies a `required_payment` (e.g., `0.50`), the x402 middleware checks the provided `payment_amount`.
+2. **Payment Required (402)**: If the `payment_amount` is missing or insufficient, the proxy immediately returns an HTTP `402 Payment Required` error, detailing the required amount.
+3. **Settlement**: If sufficient funds are provided, the proxy uses the Settlement Engine (e.g., Stripe) to process the payment.
+4. **Retries & Payment Proof**: To prevent double-charging on transient failures (like a network timeout after payment), agents can submit a `payment_proof` (the `transaction_id` from a previous successful settlement). The middleware verifies this proof and bypasses the charge, allowing the tool call to proceed.
+
+### Example: x402 with Python SDK
+```python
+# 1. Attempt a tool call that requires payment
+try:
+    await client.execute(
+        agent_id="agent_1",
+        tool_call={"url": "https://api.example.com/premium", "required_payment": 1.0},
+        credential_type="stripe_live"
+    )
+except APIError as e:
+    if e.status_code == 402:
+        print("Payment required! Retrying with funds...")
+        
+        # 2. Retry with sufficient payment
+        result = await client.execute(
+            agent_id="agent_1",
+            tool_call={"url": "https://api.example.com/premium", "required_payment": 1.0},
+            credential_type="stripe_live",
+            payment_amount=1.0
+        )
+        
+        # Save the transaction ID for future retries
+        tx_id = result.get("transaction_id")
+        
+        # 3. Retry a failed downstream call using payment_proof
+        retry_result = await client.execute(
+            agent_id="agent_1",
+            tool_call={"url": "https://api.example.com/premium", "required_payment": 1.0},
+            credential_type="stripe_live",
+            payment_proof=tx_id
+        )
+```
+
+---
+
 ## Vertical Credential Packs
 
 The Universal Agent Economy OS supports modular "Vertical Credential Packs". These packs define standardized credential types and cryptographic scopes for specific industries (e.g., Finance, Social, Cloud).
@@ -126,6 +171,27 @@ The `FinanceCredentialPack` is built-in and automatically loaded. It provides st
 - `bank_api` (Scopes: `balance:read`, `transfer:write`)
 
 When rotating credentials for these types, the Identity Engine will automatically validate requested scopes against the pack's allowed scopes. If no scopes are provided, it defaults to granting all allowed scopes for that credential type.
+
+### Example: Rotating a Vertical Credential
+```python
+# Rotate a Plaid credential. The Identity Engine automatically
+# assigns the default scopes: ["account:read", "transaction:read"]
+await client.rotate_credential(
+    agent_id="agent_1",
+    credential_type="plaid_link",
+    new_secret_data={"access_token": "access-sandbox-123"}
+)
+
+# Execute a tool call requiring the 'transaction:read' scope
+await client.execute(
+    agent_id="agent_1",
+    tool_call={
+        "url": "https://sandbox.plaid.com/transactions/get",
+        "required_scopes": ["transaction:read"]
+    },
+    credential_type="plaid_link"
+)
+```
 
 **View Available Verticals:**
 ```bash
