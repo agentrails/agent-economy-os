@@ -11,6 +11,7 @@ from app.verticals.base import CredentialPack, CredentialDefinition
 from app.verticals.finance import FinanceCredentialPack
 from app.verticals.data import DataCredentialPack
 from app.verticals.compute import ComputeCredentialPack
+from app.identity.onchain import OnChainCredentialPack
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +19,8 @@ logger = logging.getLogger(__name__)
 VERTICAL_PACKS: Dict[str, CredentialPack] = {
     FinanceCredentialPack.pack_id: FinanceCredentialPack,
     DataCredentialPack.pack_id: DataCredentialPack,
-    ComputeCredentialPack.pack_id: ComputeCredentialPack
+    ComputeCredentialPack.pack_id: ComputeCredentialPack,
+    OnChainCredentialPack.pack_id: OnChainCredentialPack
 }
 
 def get_all_packs() -> Dict[str, CredentialPack]:
