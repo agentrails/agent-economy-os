@@ -1066,6 +1066,16 @@ def test_dashboard_stats_endpoint():
     assert len(data["recent_activity"]) >= 2
     assert "recent_invoices" in data
     assert len(data["recent_invoices"]) >= 1
+    assert "pricing_tiers" in data
+    assert data["pricing_tiers"]["free"] == 100
+    
+    # Test with agent_id
+    response = client.get("/stats?agent_id=agent_stats_1", headers=get_auth_headers())
+    assert response.status_code == 200
+    data = response.json()
+    assert "agent_tier_status" in data
+    assert data["agent_tier_status"]["tier"] == "free"
+    assert data["agent_tier_status"]["total_calls"] >= 1
 
 def test_dashboard_stats_unauthorized():
     """
@@ -1083,6 +1093,39 @@ def test_dashboard_stats_failure(mock_stats):
     response = client.get("/stats", headers=get_auth_headers())
     assert response.status_code == 500
     assert "internal server error" in response.json()["detail"].lower()
+
+def test_usage_limits():
+    """
+    Test that usage limits are enforced in the proxy execution.
+    """
+    from app.config import settings
+    from app.metering import record_usage
+    
+    # Temporarily lower the limit for testing
+    original_limit = settings.FREE_TIER_LIMIT
+    settings.FREE_TIER_LIMIT = 2
+    
+    agent_id = "agent_limit_test"
+    
+    # Record 2 calls to hit the limit
+    record_usage(agent_id, 0.0)
+    record_usage(agent_id, 0.0)
+    
+    payload = {
+        "agent_id": agent_id,
+        "tool_call": {"url": "http://example.com/api", "action": "ping"},
+        "credential_type": "stripe_live"
+    }
+    
+    # Next call should fail with 402 Payment Required
+    response = client.post("/proxy/execute", json=payload, headers=get_auth_headers())
+    assert response.status_code == 402
+    data = response.json()
+    assert data["error_code"] == "PAYMENT_REQUIRED"
+    assert "Usage limit exceeded" in data["message"]
+    
+    # Restore original limit
+    settings.FREE_TIER_LIMIT = original_limit
 
 @pytest.mark.asyncio
 @patch("app.routing.get_cached_agent_scopes")

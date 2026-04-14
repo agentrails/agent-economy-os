@@ -129,6 +129,10 @@ async def execute_proxy_request(request: ProxyRequest) -> ProxyResponse:
             detail=f"Rate limit exceeded for agent '{request.agent_id}'. Please try again in {retry_after} seconds."
         )
         
+    # 0.5. Usage Limits (Pricing Tiers)
+    from app.limits import check_usage_limits
+    check_usage_limits(request.agent_id)
+        
     # 1. Identity Engine / Credential Injection via Supabase
     required_scopes = request.tool_call.get("required_scopes")
     credentials = fetch_credential(request.agent_id, request.credential_type, required_scopes)

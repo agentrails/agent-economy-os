@@ -261,11 +261,15 @@ class UAEOSClient:
         """
         return await self._request("GET", f"/billing/invoice/{agent_id}")
 
-    async def get_stats(self) -> Dict[str, Any]:
+    async def get_stats(self, agent_id: Optional[str] = None) -> Dict[str, Any]:
         """
         Retrieves global usage statistics and recent invoices from the dashboard.
+        If agent_id is provided, also returns the usage vs limits for that agent.
         """
-        return await self._request("GET", "/stats")
+        endpoint = "/stats"
+        if agent_id:
+            endpoint += f"?agent_id={agent_id}"
+        return await self._request("GET", endpoint)
 
     async def get_vertical_packs(self) -> Dict[str, Any]:
         """

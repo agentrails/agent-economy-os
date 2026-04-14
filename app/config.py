@@ -33,6 +33,10 @@ class Settings(BaseSettings):
     ANALYTICS_ACTIVE_WINDOW_SECONDS: int = 86400
     ANALYTICS_MAX_RECENT_EVENTS: int = 50
     DASHBOARD_RECENT_INVOICES_LIMIT: int = 5
+    
+    # Pricing Tiers (Day 60)
+    FREE_TIER_LIMIT: int = 100
+    PRO_TIER_LIMIT: int = 10000
 
     model_config = SettingsConfigDict(
         env_file=".env",

@@ -23,7 +23,7 @@ from app.config import settings
 from app.auth import api_key_middleware
 from app.metering import get_total_agents_metered
 from app.analytics import get_analytics_stats, AnalyticsEvent
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import uuid
 from pydantic import BaseModel, Field
 
@@ -183,6 +183,8 @@ class DashboardStatsResponse(BaseModel):
     active_agents: int = Field(..., description="Number of agents with recent activity (within 24h)", examples=[12])
     recent_activity: List[Dict[str, Any]] = Field(..., description="List of recent analytics events", examples=[[{"event_id": "evt_123", "agent_id": "agent_1", "event_type": "proxy_execute", "amount": 0.05, "timestamp": 1700000000.0}]])
     recent_invoices: List[Invoice] = Field(..., description="List of recently generated invoices")
+    pricing_tiers: Dict[str, int] = Field(..., description="Current pricing tier limits", examples=[{"free": 100, "pro": 10000}])
+    agent_tier_status: Optional[Dict[str, Any]] = Field(None, description="Tier status for a specific agent if requested")
 
 @app.get(
     "/stats",
@@ -208,7 +210,12 @@ class DashboardStatsResponse(BaseModel):
                                 "timestamp": 1700000000.0
                             }
                         ],
-                        "recent_invoices": []
+                        "recent_invoices": [],
+                        "pricing_tiers": {
+                            "free": 100,
+                            "pro": 10000
+                        },
+                        "agent_tier_status": None
                     }
                 }
             }
@@ -217,17 +224,23 @@ class DashboardStatsResponse(BaseModel):
         500: {"description": "Internal Server Error"}
     }
 )
-async def dashboard_stats():
+async def dashboard_stats(agent_id: Optional[str] = None):
     """
     Retrieves the global usage statistics and analytics dashboard.
     
     This endpoint aggregates data from the analytics tracker and billing engines,
     providing a real-time overview of the Universal Agent Economy OS health.
-    It returns total agents, API calls, settlement revenue, and recent activity.
+    It returns total agents, API calls, settlement revenue, recent activity, and pricing tiers.
+    If an `agent_id` is provided, it also returns the tier status for that specific agent.
     """
     try:
+        from app.limits import get_tier_status
         analytics_stats = get_analytics_stats()
         recent_invoices = get_recent_invoices()
+        
+        agent_status = None
+        if agent_id:
+            agent_status = get_tier_status(agent_id)
         
         return DashboardStatsResponse(
             total_agents_registered=analytics_stats["total_agents_registered"],
@@ -235,7 +248,12 @@ async def dashboard_stats():
             total_revenue=analytics_stats["total_revenue"],
             active_agents=analytics_stats["active_agents"],
             recent_activity=analytics_stats["recent_activity"],
-            recent_invoices=recent_invoices
+            recent_invoices=recent_invoices,
+            pricing_tiers={
+                "free": settings.FREE_TIER_LIMIT,
+                "pro": settings.PRO_TIER_LIMIT
+            },
+            agent_tier_status=agent_status
         )
     except Exception as e:
         logger.error(f"Failed to fetch dashboard stats: {str(e)}", exc_info=True)
