@@ -124,8 +124,9 @@ async def root():
     return {
         "status": "ok",
         "message": "Universal Agent Economy OS Proxy v0 is running",
-        "endpoints": ["/proxy/execute", "/health", "/metrics", "/stats"],
-        "note": "Revenue engine ready"
+        "endpoints": ["/proxy/execute", "/health", "/metrics", "/stats", "/verticals"],
+        "discovery": "Agent Card at /.well-known/agent-card.json, MCP Manifest at /.well-known/mcp.json",
+        "note": "Revenue engine ready. Use /verticals to explore available credential packs."
     }
 
 @app.get("/.well-known/agent-card.json", include_in_schema=False)
@@ -285,6 +286,11 @@ async def dashboard_stats(agent_id: Optional[str] = None):
                                         "name": "Stripe Live Key",
                                         "description": "Live Stripe API key for processing real payments.",
                                         "allowed_scopes": ["payment:read", "payment:write", "refund:write"]
+                                    },
+                                    "plaid_link": {
+                                        "name": "Plaid Link Token",
+                                        "description": "Plaid token for linking bank accounts.",
+                                        "allowed_scopes": ["account:read", "transaction:read"]
                                     }
                                 }
                             },
@@ -297,6 +303,18 @@ async def dashboard_stats(agent_id: Optional[str] = None):
                                         "name": "OpenAI API Key",
                                         "description": "Access to OpenAI language models.",
                                         "allowed_scopes": ["model:read", "model:execute", "fine_tune:write"]
+                                    }
+                                }
+                            },
+                            {
+                                "pack_id": "compute",
+                                "name": "Compute & AI",
+                                "description": "Core credentials for AI model inference and cloud compute resources.",
+                                "credentials": {
+                                    "aws_compute": {
+                                        "name": "AWS Compute Access",
+                                        "description": "AWS EC2 and Lambda compute access.",
+                                        "allowed_scopes": ["ec2:manage", "lambda:invoke"]
                                     }
                                 }
                             }
@@ -675,17 +693,16 @@ async def proxy_execute(request: ProxyRequest):
     }
     ```
     
-    **Example Request (x402 Retry with Proof):**
+    **Example Request (Paid Discovery):**
     ```json
     {
       "agent_id": "agent_123",
       "tool_call": {
-        "target_agent_id": "agent_456",
-        "action": "fetch_premium_data",
-        "required_payment": 1.50
+        "action": "discover",
+        "required_payment": 0.01
       },
-      "credential_type": "bank_api",
-      "payment_proof": "tx_stripe_98765"
+      "credential_type": "stripe_live",
+      "payment_amount": 0.01
     }
     ```
     """

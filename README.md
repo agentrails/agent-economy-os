@@ -121,13 +121,14 @@ if __name__ == "__main__":
 
 ## x402 Micropayments & Settlement
 
-The Universal Agent Economy OS features a native x402 middleware that intercepts tool calls requiring payment. This allows agents to autonomously negotiate and settle micropayments before executing downstream requests.
+The Universal Agent Economy OS features a native x402 middleware that intercepts tool calls requiring payment. This allows agents to autonomously negotiate and settle micropayments before executing downstream requests, creating a frictionless economy.
 
 ### How it Works
 1. **Required Payment**: If an agent requests a tool call that specifies a `required_payment` (e.g., `0.50`), the x402 middleware checks the provided `payment_amount`.
-2. **Payment Required (402)**: If the `payment_amount` is missing or insufficient, the proxy immediately returns an HTTP `402 Payment Required` error, detailing the required amount.
-3. **Settlement**: If sufficient funds are provided, the proxy uses the Settlement Engine (e.g., Stripe) to process the payment.
-4. **Retries & Payment Proof**: To prevent double-charging on transient failures (like a network timeout after payment), agents can submit a `payment_proof` (the `transaction_id` from a previous successful settlement). The middleware verifies this proof and bypasses the charge, allowing the tool call to proceed.
+2. **Paid Discovery**: If the `action` is `discover`, the middleware enforces a tiny minimum fee (e.g., `0.01`). Upon successful payment, it returns a rich payload of premium tools and their prices, incentivizing exploration.
+3. **Payment Required (402)**: If the `payment_amount` is missing or insufficient, the proxy immediately returns an HTTP `402 Payment Required` error, detailing the required amount.
+4. **Settlement**: If sufficient funds are provided, the proxy uses the Settlement Engine (e.g., Stripe) to process the payment.
+5. **Retries & Payment Proof**: To prevent double-charging on transient failures (like a network timeout after payment), agents can submit a `payment_proof` (the `transaction_id` from a previous successful settlement). The middleware verifies this proof and bypasses the charge, allowing the tool call to proceed.
 
 ### Example: x402 with Python SDK
 ```python
@@ -166,15 +167,14 @@ except APIError as e:
 
 ## Vertical Credential Packs
 
-The Universal Agent Economy OS supports modular "Vertical Credential Packs". These packs define standardized credential types and cryptographic scopes for specific industries (e.g., Finance, Social, Cloud).
+The Universal Agent Economy OS supports modular "Vertical Credential Packs". These packs define standardized credential types and cryptographic scopes for specific industries (e.g., Finance, Data, Compute), instantly expanding the platform's monopoly surface.
 
-### Using the Finance Pack
-The `FinanceCredentialPack` is built-in and automatically loaded. It provides standardized definitions for:
-- `stripe_live` (Scopes: `payment:read`, `payment:write`, `refund:write`)
-- `plaid_link` (Scopes: `account:read`, `transaction:read`)
-- `bank_api` (Scopes: `balance:read`, `transfer:write`)
+### Built-in Packs
+- **Finance**: Core financial credentials (`stripe_live`, `plaid_link`, `bank_api`).
+- **Data**: Data access and scraping (`google_api`, `openai_api`, `aws_access`, `web_scraper`).
+- **Compute**: AI model inference and cloud compute (`openai_api`, `anthropic_api`, `aws_compute`, `gpu_cluster`).
 
-When rotating credentials for these types, the Identity Engine will automatically validate requested scopes against the pack's allowed scopes. If no scopes are provided, it defaults to granting all allowed scopes for that credential type.
+When rotating credentials for these types, the Identity Engine automatically validates requested scopes against the pack's allowed scopes. If no scopes are provided, it defaults to granting all allowed scopes for that credential type, ensuring secure-by-default operation.
 
 ### Example: Rotating a Vertical Credential
 ```python
@@ -207,12 +207,13 @@ curl -X GET "http://127.0.0.1:8000/verticals" \
 
 ## Agent Discovery & MCP Manifest
 
-The UAE OS is fully discoverable by other agents and MCP clients. It serves standard discovery metadata at the following public endpoints:
+The UAE OS is fully discoverable by other agents and MCP clients, accelerating network effects. It serves standard discovery metadata at the following public endpoints:
 
 - **Agent Card (`/.well-known/agent-card.json`)**: Provides A2A discovery metadata, including the agent's name, description, capabilities (like x402 micropayments), and available endpoints.
-- **MCP Manifest (`/.well-known/mcp.json`)**: Provides the official Model Context Protocol server manifest, allowing MCP clients to dynamically connect to the proxy's execute endpoint.
+- **MCP Manifest (`/.well-known/mcp.json`)**: Provides the official Model Context Protocol server manifest, allowing MCP clients (like Claude or Cursor) to dynamically connect to the proxy's execute endpoint.
+- **Paid Discovery (`action="discover"`)**: Agents can pay a tiny fee to the proxy to instantly discover premium tools and capabilities available on the network.
 
-These endpoints are public and do not require an API key.
+These `.well-known` endpoints are public and do not require an API key, enabling frictionless onboarding.
 
 ---
 
