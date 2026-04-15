@@ -343,6 +343,18 @@ async def dashboard_stats(agent_id: Optional[str] = None):
                                         "allowed_scopes": ["audit:read", "audit:export"]
                                     }
                                 }
+                            },
+                            {
+                                "pack_id": "legal",
+                                "name": "Legal & Compliance",
+                                "description": "Enterprise-grade credentials for legal contracts, IP registries, court filings, and e-signatures.",
+                                "credentials": {
+                                    "legal_contract_access": {
+                                        "name": "Legal Contract Access",
+                                        "description": "Access to centralized legal contract repositories and lifecycle management systems.",
+                                        "allowed_scopes": ["contract:read", "contract:write", "contract:draft"]
+                                    }
+                                }
                             }
                         ]
                     }
