@@ -5,6 +5,15 @@ All notable changes to the Universal Agent Economy OS will be documented in this
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.6] - 2026-04-07
+
+### Added
+- **Legal Vertical Pack**: Added the `LegalCredentialPack` with credentials for legal contracts, IP registries, and e-signatures.
+- **Enhanced On-Chain Identity**: Expanded ERC-8004 identity stub to include SIWE sessions and verifiable credentials.
+- **Pricing Dashboard Improvements**: Added projected costs to the `/stats` dashboard and agent tier status.
+- **Paid Discovery Examples**: Enhanced the paid discovery loop (`action="discover"`) with compliance and legal tool examples.
+- **Documentation & SDK Polish**: Updated `README.md` and Python SDK with comprehensive examples for paid discovery and the new vertical packs.
+
 ## [0.1.5] - 2026-04-16
 
 ### Added
