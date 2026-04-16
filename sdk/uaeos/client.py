@@ -267,7 +267,17 @@ class UAEOSClient:
     async def get_stats(self, agent_id: Optional[str] = None) -> Dict[str, Any]:
         """
         Retrieves global usage statistics and recent invoices from the dashboard.
-        If agent_id is provided, also returns the usage vs limits for that agent.
+        If agent_id is provided, also returns the usage vs limits for that agent,
+        including projected costs and tier recommendations.
+        
+        Example:
+            ```python
+            stats = await client.get_stats(agent_id="agent_1")
+            agent_tier = stats.get("agent_tier_status", {})
+            print(f"Tier: {agent_tier.get('tier')}")
+            print(f"Projected Cost: ${agent_tier.get('projected_cost')}")
+            print(f"Recommendation: Upgrade to {agent_tier.get('tier_recommendation')}")
+            ```
         """
         endpoint = "/stats"
         if agent_id:
@@ -279,7 +289,7 @@ class UAEOSClient:
         Retrieves all registered vertical credential packs and their definitions.
         
         Vertical packs define standardized credential types and cryptographic scopes
-        for specific industries (e.g., Finance, Data, Compute, Compliance, Legal).
+        for specific industries (e.g., Finance, Data, Compute, Compliance, Legal, On-Chain).
         
         Returns:
             Dict containing a list of all available vertical packs.

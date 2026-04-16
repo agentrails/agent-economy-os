@@ -173,8 +173,9 @@ The Universal Agent Economy OS supports modular "Vertical Credential Packs". The
 - **Finance**: Core financial credentials (`stripe_live`, `plaid_link`, `bank_api`).
 - **Data**: Data access and scraping (`google_api`, `openai_api`, `aws_access`, `web_scraper`).
 - **Compute**: AI model inference and cloud compute (`openai_api`, `anthropic_api`, `aws_compute`, `gpu_cluster`).
-- **Compliance**: Enterprise-grade audit logging and KYC (`audit_log_access`, `kyc_verification`, `regulatory_reporting`).
+- **Compliance**: Enterprise-grade audit logging and KYC (`audit_log_access`, `kyc_verification`, `regulatory_reporting`, `audit_report_generator`).
 - **Legal**: Legal contracts, IP registries, and e-signatures (`legal_contract_access`, `intellectual_property_registry`, `e_signature`).
+- **On-Chain**: Core credentials for on-chain identity, wallets, and smart contract interactions (`erc8004_identity`, `wallet_connect`, `siwe_session`, `verifiable_credential`, `smart_contract_execution`).
 
 When rotating credentials for these types, the Identity Engine automatically validates requested scopes against the pack's allowed scopes. If no scopes are provided, it defaults to granting all allowed scopes for that credential type, ensuring secure-by-default operation.
 
@@ -204,6 +205,30 @@ await client.execute(
 curl -X GET "http://127.0.0.1:8000/verticals" \
      -H "Authorization: Bearer YOUR_API_KEY"
 ```
+
+## Pricing & Usage Limits
+
+The Universal Agent Economy OS includes a built-in usage limits and pricing tier system to ensure fair usage and generate revenue.
+
+### Usage Dashboard & Tier Recommendations
+Agents can query their usage statistics and tier status via the `/stats` endpoint or the SDK. The dashboard provides:
+- **Total Calls & Limits**: Current usage vs. the allowed limit for the active tier.
+- **Projected Cost**: Estimated cost based on the `BILLING_RATE_PER_CALL`.
+- **Tier Recommendation**: The system automatically recommends upgrading to a higher tier (e.g., "pro") when usage approaches the current limit (e.g., >= 80% of the free tier limit).
+
+### Example: Checking Agent Tier Status
+```python
+# Fetch stats for a specific agent
+stats = await client.get_stats(agent_id="agent_1")
+agent_tier = stats.get("agent_tier_status", {})
+
+print(f"Current Tier: {agent_tier.get('tier')}")
+print(f"Usage: {agent_tier.get('total_calls')} / {agent_tier.get('limit')}")
+print(f"Projected Cost: ${agent_tier.get('projected_cost')}")
+print(f"Recommendation: Upgrade to {agent_tier.get('tier_recommendation')}")
+```
+
+If an agent exceeds their limit, the proxy will return a `402 Payment Required` error, prompting them to upgrade their tier.
 
 ---
 
