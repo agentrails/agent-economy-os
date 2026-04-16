@@ -33,17 +33,22 @@ def check_usage_limits(agent_id: str) -> None:
         logger.warning(f"Agent {agent_id} exceeded usage limit ({total_calls}/{limit} calls).")
         raise PaymentRequiredError(
             required_amount=10.0, # Example amount to upgrade to PRO
-            message=f"Usage limit exceeded. You have made {total_calls} calls (limit: {limit}). Please upgrade your tier."
+            message=f"Usage limit exceeded. You have made {total_calls} calls (limit: {limit}). Please upgrade to the PRO tier to continue using the Universal Agent Economy OS."
         )
 
 def get_tier_status(agent_id: str) -> Dict[str, Any]:
     """
-    Returns the current usage vs limits for the given agent, including projected costs.
+    Returns the current usage vs limits for the given agent, including projected costs and tier recommendations.
     """
     stats = get_usage_stats(agent_id)
     total_calls = stats.get("total_calls", 0)
     limit = settings.FREE_TIER_LIMIT
     projected_cost = total_calls * settings.BILLING_RATE_PER_CALL
+    
+    # Recommend a tier based on usage
+    tier_recommendation = "free"
+    if total_calls >= limit * 0.8:
+        tier_recommendation = "pro"
     
     return {
         "tier": "free",
@@ -51,5 +56,6 @@ def get_tier_status(agent_id: str) -> Dict[str, Any]:
         "limit": limit,
         "remaining": max(0, limit - total_calls),
         "exceeded": total_calls >= limit,
-        "projected_cost": round(projected_cost, 4)
+        "projected_cost": round(projected_cost, 4),
+        "tier_recommendation": tier_recommendation
     }
