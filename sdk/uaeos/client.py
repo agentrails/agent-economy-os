@@ -300,7 +300,7 @@ class UAEOSClient:
         Executes a paid discovery call to find premium tools and capabilities available on the network.
         
         This leverages the self-reinforcing x402 discovery loop, allowing agents to 
-        pay a tiny fee to uncover high-value tools (e.g., KYC verification, legal contract access).
+        pay a tiny fee to uncover high-value tools (e.g., Audit Report Generator, Legal Contract Access, Smart Contract Auditor).
         
         Args:
             agent_id: The calling agent's ID
@@ -315,6 +315,10 @@ class UAEOSClient:
             premium_tools = result.get("discovery_data", {}).get("premium_tools", [])
             for tool in premium_tools:
                 print(f"Discovered: {tool['name']} ({tool['action']}) - ${tool['required_payment']}")
+            # Example Output:
+            # Discovered: Audit Report Generator (audit_report_generate) - $25.0
+            # Discovered: Legal Contract Access (legal_contract_fetch) - $30.0
+            # Discovered: Smart Contract Auditor (smart_contract_scan) - $100.0
             ```
         """
         tool_call = {

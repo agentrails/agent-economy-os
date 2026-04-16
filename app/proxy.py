@@ -201,6 +201,12 @@ async def execute_proxy_request(request: ProxyRequest) -> ProxyResponse:
                     "required_payment": 15.00
                 },
                 {
+                    "name": "Audit Report Generator",
+                    "action": "audit_report_generate",
+                    "description": "Generate auditor-ready export reports of proxy execution logs.",
+                    "required_payment": 25.00
+                },
+                {
                     "name": "KYC Verification Service",
                     "action": "kyc_verify",
                     "description": "Perform third-party Know Your Customer (KYC) and AML verification.",
@@ -211,6 +217,18 @@ async def execute_proxy_request(request: ProxyRequest) -> ProxyResponse:
                     "action": "regulatory_report",
                     "description": "Generate and submit automated tax and regulatory reports.",
                     "required_payment": 50.00
+                },
+                {
+                    "name": "Legal Contract Access",
+                    "action": "legal_contract_fetch",
+                    "description": "Access centralized legal contract repositories and lifecycle management systems.",
+                    "required_payment": 30.00
+                },
+                {
+                    "name": "Smart Contract Auditor",
+                    "action": "smart_contract_scan",
+                    "description": "Automated smart contract vulnerability scanning and formal verification.",
+                    "required_payment": 100.00
                 }
             ],
             "tip": "Use the returned action names in your next tool_call to access these premium capabilities."
