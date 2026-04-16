@@ -342,6 +342,11 @@ async def dashboard_stats(agent_id: Optional[str] = None):
                                         "name": "Audit Log Access",
                                         "description": "Read-only access to immutable transaction and proxy execution audit logs.",
                                         "allowed_scopes": ["audit:read", "audit:export"]
+                                    },
+                                    "audit_report_generator": {
+                                        "name": "Audit Report Generator",
+                                        "description": "Capability to generate auditor-ready export reports of proxy execution logs.",
+                                        "allowed_scopes": ["audit:export", "report:generate"]
                                     }
                                 }
                             },
