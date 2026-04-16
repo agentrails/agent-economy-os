@@ -32,6 +32,21 @@ class OnChainIdentityStub:
                     name="W3C Verifiable Credential",
                     description="On-chain verifiable credential for hybrid identity proofs.",
                     allowed_scopes=["vc:read", "vc:verify", "vc:issue"]
+                ),
+                "smart_contract_execution": CredentialDefinition(
+                    name="Smart Contract Execution",
+                    description="Credentials for executing state-changing transactions on smart contracts.",
+                    allowed_scopes=["contract:execute", "contract:deploy", "gas:sponsor"]
+                ),
+                "dao_governance_token": CredentialDefinition(
+                    name="DAO Governance Token",
+                    description="Tokenized voting power and governance rights for decentralized autonomous organizations.",
+                    allowed_scopes=["dao:vote", "dao:propose", "treasury:read"]
+                ),
+                "cross_chain_bridge": CredentialDefinition(
+                    name="Cross-Chain Bridge Access",
+                    description="Credentials for interacting with cross-chain bridges and interoperability protocols.",
+                    allowed_scopes=["bridge:transfer", "bridge:status", "liquidity:pool"]
                 )
             }
         )

@@ -331,6 +331,11 @@ async def dashboard_stats(agent_id: Optional[str] = None):
                                         "name": "ERC-8004 Identity",
                                         "description": "On-chain identity profile and attestations.",
                                         "allowed_scopes": ["wallet:read", "nft:verify", "ens:resolve"]
+                                    },
+                                    "smart_contract_execution": {
+                                        "name": "Smart Contract Execution",
+                                        "description": "Credentials for executing state-changing transactions on smart contracts.",
+                                        "allowed_scopes": ["contract:execute", "contract:deploy", "gas:sponsor"]
                                     }
                                 }
                             },
