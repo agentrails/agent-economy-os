@@ -13,7 +13,7 @@ from app.payments import execute_payment
 
 logger = logging.getLogger(__name__)
 
-def process_x402_payment(agent_id: str, tool_call: Dict[str, Any], payment_amount: Optional[float], payment_proof: Optional[str] = None) -> Tuple[bool, Optional[str]]:
+def process_x402_payment(agent_id: str, tool_call: Dict[str, Any], payment_amount: Optional[float], payment_proof: Optional[str] = None) -> Tuple[bool, Optional[str], Optional[Dict[str, Any]]]:
     """
     Native x402 middleware logic.
     
@@ -23,14 +23,30 @@ def process_x402_payment(agent_id: str, tool_call: Dict[str, Any], payment_amoun
     3. Verifies that the provided payment_amount is sufficient.
     4. If insufficient or missing, raises a 402 PaymentRequiredError.
     5. If sufficient, executes the payment via the settlement engine.
+    6. Generates recommendation metadata for successful responses to encourage upsell.
     
     Returns:
-        Tuple[bool, Optional[str]]: (settled_status, transaction_id)
+        Tuple[bool, Optional[str], Optional[Dict[str, Any]]]: (settled_status, transaction_id, recommendation_metadata)
     """
     required_payment = float(tool_call.get("required_payment", 0.0))
+    action = tool_call.get("action", "")
+    
+    # Generate contextual recommendations based on the action
+    recommendation_metadata = {
+        "message": "Enhance your agent's capabilities with our premium vertical packs.",
+        "suggested_packs": ["compliance", "legal", "onchain"],
+        "next_actions": ["Use action='discover' to find premium tools."]
+    }
+    
+    if "audit" in action or "kyc" in action:
+        recommendation_metadata["suggested_packs"] = ["compliance"]
+        recommendation_metadata["premium_tools"] = ["audit_report_generate", "kyc_verify"]
+    elif "contract" in action or "legal" in action:
+        recommendation_metadata["suggested_packs"] = ["legal"]
+        recommendation_metadata["premium_tools"] = ["legal_contract_fetch"]
     
     # Discovery mode: enforce a tiny fee for discovering premium tools
-    if tool_call.get("action") == "discover" and required_payment < 0.01:
+    if action == "discover" and required_payment < 0.01:
         required_payment = 0.01
         logger.info(f"Discovery mode activated for agent {agent_id}. Enforcing minimum fee of {required_payment}.")
     
@@ -41,7 +57,7 @@ def process_x402_payment(agent_id: str, tool_call: Dict[str, Any], payment_amoun
         # the transaction ID is valid, successful, and matches the required amount.
         if payment_proof.startswith("tx_") and len(payment_proof) > 5:
             logger.info(f"Payment proof {payment_proof} verified successfully for agent {agent_id}.")
-            return True, payment_proof
+            return True, payment_proof, recommendation_metadata
         else:
             logger.warning(f"Invalid payment proof provided by agent {agent_id}: {payment_proof}")
             raise PaymentFailedError("Invalid payment proof provided.")
@@ -62,7 +78,7 @@ def process_x402_payment(agent_id: str, tool_call: Dict[str, Any], payment_amoun
             logger.error(f"x402 payment settlement failed for agent {agent_id}.")
             raise PaymentFailedError("Payment settlement failed during x402 middleware processing.")
             
-        return True, transaction_id
+        return True, transaction_id, recommendation_metadata
         
     # No payment required and no payment provided
-    return False, None
+    return False, None, recommendation_metadata

@@ -105,6 +105,11 @@ class ProxyResponse(BaseModel):
         description="Optional discovery data returned when action='discover' is used",
         examples=[{"premium_tools": ["finance_analyzer", "market_predictor"]}]
     )
+    recommendation_metadata: Optional[Dict[str, Any]] = Field(
+        None,
+        description="Structured recommendations for relevant vertical packs, premium tools, or next actions.",
+        examples=[{"suggested_packs": ["compliance", "legal"], "premium_tools": ["audit_report_generate"]}]
+    )
 
     model_config = {
         "json_schema_extra": {
@@ -113,7 +118,12 @@ class ProxyResponse(BaseModel):
                 "injected_credential": True,
                 "x402_settled": True,
                 "transaction_id": "tx_a1b2c3d4e5f6",
-                "audit_id": "adt_9876543210abcdef"
+                "audit_id": "adt_9876543210abcdef",
+                "recommendation_metadata": {
+                    "message": "Enhance your agent's capabilities with our premium vertical packs.",
+                    "suggested_packs": ["compliance", "legal", "onchain"],
+                    "next_actions": ["Use action='discover' to find premium tools."]
+                }
             }
         }
     }
@@ -157,7 +167,7 @@ async def execute_proxy_request(request: ProxyRequest) -> ProxyResponse:
 
     # 2. Settlement Engine (x402 micropayment proxy)
     # Native x402 middleware intercepts the request and checks for required payments
-    settled, transaction_id = process_x402_payment(
+    settled, transaction_id, recommendation_metadata = process_x402_payment(
         agent_id=request.agent_id,
         tool_call=request.tool_call,
         payment_amount=request.payment_amount,
@@ -257,5 +267,6 @@ async def execute_proxy_request(request: ProxyRequest) -> ProxyResponse:
         x402_settled=settled,
         transaction_id=transaction_id,
         audit_id=audit_id,
-        discovery_data=discovery_data
+        discovery_data=discovery_data,
+        recommendation_metadata=recommendation_metadata
     )
