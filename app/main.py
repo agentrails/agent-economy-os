@@ -178,6 +178,18 @@ async def metrics():
         "total_agents_metered": get_total_agents_metered()
     }
 
+class AgentTierStatus(BaseModel):
+    """
+    Tier status and pricing projections for a specific agent.
+    """
+    tier: str = Field(..., description="Current pricing tier", examples=["free"])
+    total_calls: int = Field(..., description="Total API calls made by the agent", examples=[45])
+    limit: int = Field(..., description="API call limit for the current tier", examples=[100])
+    remaining: int = Field(..., description="Remaining API calls before limit is reached", examples=[55])
+    exceeded: bool = Field(..., description="Whether the agent has exceeded their limit", examples=[False])
+    projected_cost: float = Field(..., description="Projected cost based on current usage and billing rate", examples=[0.45])
+    tier_recommendation: str = Field(..., description="Recommended tier based on usage patterns", examples=["free"])
+
 class DashboardStatsResponse(BaseModel):
     """
     Response payload for the basic usage stats dashboard.
@@ -185,12 +197,12 @@ class DashboardStatsResponse(BaseModel):
     total_agents_registered: int = Field(..., description="Total number of agents metered", examples=[42])
     total_calls: int = Field(..., description="Total API calls across all agents", examples=[15000])
     total_revenue: float = Field(..., description="Total settled payment volume across all agents", examples=[1250.50])
-    daily_revenue_summary: float = Field(..., description="Total revenue generated in the last 24 hours", examples=[150.25])
+    daily_revenue_summary: Dict[str, float] = Field(..., description="Daily revenue summary and projections", examples=[{"daily_revenue": 150.25, "projected_7d_revenue": 1051.75, "projected_30d_revenue": 4507.50, "projected_annual_revenue": 54841.25}])
     active_agents: int = Field(..., description="Number of agents with recent activity (within 24h)", examples=[12])
     recent_activity: List[Dict[str, Any]] = Field(..., description="List of recent analytics events", examples=[[{"event_id": "evt_123", "agent_id": "agent_1", "event_type": "proxy_execute", "amount": 0.05, "timestamp": 1700000000.0}]])
     recent_invoices: List[Invoice] = Field(..., description="List of recently generated invoices")
     pricing_tiers: Dict[str, int] = Field(..., description="Current pricing tier limits", examples=[{"free": 100, "pro": 10000}])
-    agent_tier_status: Optional[Dict[str, Any]] = Field(None, description="Tier status for a specific agent if requested", examples=[{"tier": "free", "total_calls": 45, "limit": 100, "remaining": 55, "exceeded": False, "projected_cost": 0.45, "tier_recommendation": "free"}])
+    agent_tier_status: Optional[AgentTierStatus] = Field(None, description="Tier status for a specific agent if requested")
 
 @app.get(
     "/stats",
@@ -206,7 +218,12 @@ class DashboardStatsResponse(BaseModel):
                         "total_agents_registered": 150,
                         "total_calls": 45000,
                         "total_revenue": 3250.75,
-                        "daily_revenue_summary": 150.25,
+                        "daily_revenue_summary": {
+                            "daily_revenue": 150.25,
+                            "projected_7d_revenue": 1051.75,
+                            "projected_30d_revenue": 4507.50,
+                            "projected_annual_revenue": 54841.25
+                        },
                         "active_agents": 45,
                         "recent_activity": [
                             {
