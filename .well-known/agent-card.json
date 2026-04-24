@@ -1,18 +1,42 @@
 {
   "name": "Universal Agent Economy OS",
-  "description": "A foundational MCP/A2A-native core platform for secure credential injection and x402 micropayments.",
+  "description": "A foundational MCP/A2A-native core platform for secure credential injection, x402 micropayments, and autonomous agent routing.",
   "version": "0.1.7",
+  "author": "Universal Agent Economy",
+  "license": "MIT",
+  "tags": [
+    "mcp",
+    "a2a",
+    "agent-economy",
+    "x402",
+    "micropayments",
+    "credential-injection",
+    "ai-agents",
+    "web3",
+    "compliance"
+  ],
   "capabilities": {
     "x402_micropayments": true,
     "credential_injection": true,
-    "a2a_routing": true
+    "a2a_routing": true,
+    "paid_discovery": true,
+    "usage_metering": true,
+    "vertical_packs": [
+      "finance",
+      "data",
+      "compute",
+      "onchain",
+      "compliance",
+      "legal"
+    ]
   },
   "endpoints": {
     "proxy": "https://agent-economy-os-production.up.railway.app/proxy/execute",
     "routing": "https://agent-economy-os-production.up.railway.app/a2a/route",
     "health": "https://agent-economy-os-production.up.railway.app/health",
     "metrics": "https://agent-economy-os-production.up.railway.app/metrics",
-    "stats": "https://agent-economy-os-production.up.railway.app/stats"
+    "stats": "https://agent-economy-os-production.up.railway.app/stats",
+    "verticals": "https://agent-economy-os-production.up.railway.app/verticals"
   },
   "sdk": "https://github.com/sommerhussain/agent-economy-os"
 }

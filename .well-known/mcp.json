@@ -7,9 +7,31 @@
     }
   },
   "version": "0.1.7",
+  "description": "Universal Agent Economy OS - MCP Server for x402 micropayments, credential injection, and agent-to-agent routing.",
+  "vendor": "Universal Agent Economy",
+  "tags": [
+    "mcp",
+    "a2a",
+    "x402",
+    "agent-economy",
+    "proxy"
+  ],
   "capabilities": {
     "tools": true,
-    "resources": false,
-    "prompts": false
-  }
+    "resources": true,
+    "prompts": false,
+    "logging": true,
+    "experimental": {
+      "x402_micropayments": true,
+      "credential_injection": true
+    }
+  },
+  "supported_verticals": [
+    "finance",
+    "data",
+    "compute",
+    "onchain",
+    "compliance",
+    "legal"
+  ]
 }
