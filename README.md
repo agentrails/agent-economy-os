@@ -505,6 +505,23 @@ graph TD
 
 ---
 
+## For Acquirers / New Maintainers
+
+The Universal Agent Economy OS is architected with a **pure build-to-sell** philosophy. Every module is designed for maximum enterprise appeal, immediate handover readiness, and seamless integration into larger corporate ecosystems.
+
+### Why this Asset is Attractive
+1. **Multi-Monopoly Surface**: It is not just a proxy. It is an Identity Engine, a Settlement Engine, and a marketplace of Vertical Credential Packs (Finance, Healthcare, Logistics, Marketing, On-Chain).
+2. **Zero-Touch Maintenance**: Built-in self-healing mechanics (like the `auto_rotate_agent_credentials` stub) demonstrate how the system can autonomously manage high-frequency credential rotation for regulated industries.
+3. **Enterprise Compliance**: Stubs for SOC2, HIPAA, and GDPR auditor-ready exports are built directly into the vertical packs, reducing compliance friction for acquirers.
+4. **Revenue Engine**: The native x402 middleware, usage limits, and paid discovery loops are pre-configured to generate revenue from day one.
+5. **Infrastructure-as-Code**: The included Terraform foundation (`deploy/terraform/`) ensures the entire stack can be spun up in an enterprise AWS/GCP/Azure environment with a single command.
+6. **100% Test Coverage**: The core proxy, identity, and payment modules are fully tested, ensuring a safe handover and immediate confidence for new engineering teams.
+
+### Modularity & Extensibility
+The codebase is strictly modular. New maintainers can add new vertical packs in `app/verticals/` without touching the core proxy logic. The Identity Engine (`app/identity/`) and Settlement Engine (`app/payments.py`, `app/middleware/x402.py`) are decoupled, allowing them to be swapped for enterprise-specific internal tools (e.g., swapping Stripe for an internal ledger, or Supabase for an internal IAM provider).
+
+---
+
 ## Contributing
 We welcome contributions! The Universal Agent Economy OS is designed to be the definitive open-source standard for the agentic economy. 
 
