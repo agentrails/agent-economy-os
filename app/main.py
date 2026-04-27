@@ -395,6 +395,23 @@ async def dashboard_stats(agent_id: Optional[str] = None):
                                         "allowed_scopes": ["contract:read", "contract:write", "contract:draft"]
                                     }
                                 }
+                            },
+                            {
+                                "pack_id": "healthcare",
+                                "name": "Healthcare & Life Sciences",
+                                "description": "Enterprise-grade credentials for EHR systems, PHI access, and HIPAA-compliant data processing.",
+                                "credentials": {
+                                    "ehr_system_access": {
+                                        "name": "EHR System API",
+                                        "description": "Secure access to Electronic Health Record (EHR) systems (e.g., Epic, Cerner) via FHIR standards.",
+                                        "allowed_scopes": ["ehr:read", "ehr:write", "patient:search"]
+                                    },
+                                    "phi_data_processor": {
+                                        "name": "PHI Data Processor",
+                                        "description": "Credentials for processing Protected Health Information (PHI) under strict least-privilege enforcement.",
+                                        "allowed_scopes": ["phi:read", "phi:anonymize", "data:process"]
+                                    }
+                                }
                             }
                         ]
                     }
