@@ -16,6 +16,7 @@ from app.verticals.compliance import ComplianceCredentialPack
 from app.verticals.legal import LegalCredentialPack
 from app.verticals.healthcare import HealthcareCredentialPack
 from app.verticals.logistics import LogisticsCredentialPack
+from app.verticals.marketing import MarketingCredentialPack
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +29,8 @@ VERTICAL_PACKS: Dict[str, CredentialPack] = {
     ComplianceCredentialPack.pack_id: ComplianceCredentialPack,
     LegalCredentialPack.pack_id: LegalCredentialPack,
     HealthcareCredentialPack.pack_id: HealthcareCredentialPack,
-    LogisticsCredentialPack.pack_id: LogisticsCredentialPack
+    LogisticsCredentialPack.pack_id: LogisticsCredentialPack,
+    MarketingCredentialPack.pack_id: MarketingCredentialPack
 }
 
 def get_all_packs() -> Dict[str, CredentialPack]:
