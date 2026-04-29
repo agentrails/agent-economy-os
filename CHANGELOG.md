@@ -5,6 +5,14 @@ All notable changes to the Universal Agent Economy OS will be documented in this
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.10] - 2026-04-29
+
+### Added
+- **Self-Healing Mechanics**: Implemented the `auto_rotate_agent_credentials` capability in the Identity Engine, demonstrating zero-touch maintenance for high-frequency credential rotation in regulated industries, drastically reducing key-person risk.
+- **Infrastructure-as-Code**: Expanded the Terraform foundation (`deploy/terraform/`) to cover the full stack (core services, Supabase schema, Redis, Railway-specific config) for one-command enterprise deployment.
+- **Enterprise Documentation**: Added `docs/architecture.md` featuring a clear markdown architecture diagram and critical internal notes on mitigating Model Context Protocol (MCP) STDIO vulnerabilities via server-side credential injection.
+- **Codebase Audit**: Performed a full codebase audit to ensure complete sanitization of personal references and polished all metadata for maximum acquirer appeal.
+
 ## [0.1.9] - 2026-04-27
 
 ### Added

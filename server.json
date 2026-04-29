@@ -6,7 +6,7 @@
       "url": "https://github.com/universal-agent-economy/agent-economy-os",
       "source": "github"
     },
-    "version": "0.1.9",
+    "version": "0.1.10",
     "packages": [
       {
         "registryType": "remote",
