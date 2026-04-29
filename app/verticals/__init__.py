@@ -15,7 +15,7 @@ from app.identity.onchain import OnChainCredentialPack
 from app.verticals.compliance import ComplianceCredentialPack
 from app.verticals.legal import LegalCredentialPack
 from app.verticals.healthcare import HealthcareCredentialPack, export_healthcare_audit_log
-from app.verticals.logistics import LogisticsCredentialPack
+from app.verticals.logistics import LogisticsCredentialPack, export_logistics_audit_log
 from app.verticals.marketing import MarketingCredentialPack
 
 logger = logging.getLogger(__name__)
