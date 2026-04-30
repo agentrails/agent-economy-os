@@ -93,8 +93,13 @@ async def add_security_headers(request: Request, call_next):
     return response
 
 # 4. Authentication Middleware
-# Protects all routes except public ones (/, /health, /docs)
-app.middleware("http")(api_key_middleware)
+# Protects all routes except public ones
+@app.middleware("http")
+async def conditional_auth_middleware(request: Request, call_next):
+    public_paths = ["/", "/health", "/metrics", "/verticals", "/stats"]
+    if request.url.path in public_paths or request.url.path.startswith("/.well-known/"):
+        return await call_next(request)
+    return await api_key_middleware(request, call_next)
 
 @app.exception_handler(UAEError)
 async def uae_error_handler(request: Request, exc: UAEError):
