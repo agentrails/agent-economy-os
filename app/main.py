@@ -43,6 +43,11 @@ app = FastAPI(
     version=VERSION
 )
 
+from fastapi.staticfiles import StaticFiles
+
+# Serve .well-known directory for MCP discovery
+app.mount("/.well-known", StaticFiles(directory=".well-known"), name="well-known")
+
 # 1. CORS Middleware
 # Uses the centralized config object for production readiness.
 app.add_middleware(
